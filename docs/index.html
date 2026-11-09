@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="sip. is a quiet drink diary: snap your cup, sip to rate it, and watch your month fill up with little stickers.">
+<meta name="theme-color" content="#C38D9F"><link rel="icon" href="app/icons/icon-192.png"><link rel="apple-touch-icon" href="app/icons/apple-touch-icon.png">
+<style>body{margin:0}</style>
+<title>sip. — days in cups</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+DW+Pica:ital@0;1&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: the app's awning as the page header, one quiet column of paper below: hero, a four-slide feature carousel (gif + words), install, footer */
+:root{
+  --accent:#C38D9F; --stripe:#AF7F8F; --milky:#E0C4CD; --accent-ink:#795763; --ink:#A9818E; --muted:#B48D9A;
+  --paper:#F3F1E8; --card:#FBFAF5; --line:#D7CBC8; --pearl:#684E41; --off:#F6F3EA;
+  --display:"IM Fell English", Georgia, serif; --body:"Figtree", "Avenir Next", system-ui, sans-serif;
+  --gut:max(16px, env(safe-area-inset-left, 0px)); --gutR:max(16px, env(safe-area-inset-right, 0px));
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--accent-ink); font:400 15px/1.6 var(--body); overflow-x:hidden}
+a{color:inherit}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{font-family:var(--display); font-weight:400; text-wrap:balance}
+:focus-visible{outline:2px solid var(--accent-ink); outline-offset:3px; border-radius:8px}
+.wrap{width:min(1040px, 100% - var(--gut) - var(--gutR)); margin-inline:auto}
+
+/* the awning */
+.awning{position:relative; height:118px; background:repeating-linear-gradient(90deg, var(--accent) 0 37px, var(--stripe) 37px 74px)}
+.awning::after{content:""; position:absolute; left:0; right:0; top:100%; height:19px;
+  background:radial-gradient(circle at 18.5px 0, var(--accent) 18px, transparent 18.6px) 0 0/74px 37px repeat-x,
+             radial-gradient(circle at 55.5px 0, var(--stripe) 18px, transparent 18.6px) 0 0/74px 37px repeat-x}
+.nav{position:relative; z-index:2; display:flex; align-items:center; justify-content:space-between; gap:16px; height:100%; padding-bottom:6px}
+.logo{font-family:var(--display); font-style:italic; font-size:52px; line-height:1; color:var(--off); text-decoration:none}
+.nav ul{list-style:none; display:flex; gap:4px; margin:0; padding:0}
+.nav ul a{display:block; text-decoration:none; color:var(--off); font-weight:500; font-size:13px; letter-spacing:.06em; padding:9px 14px; border-radius:999px}
+.nav ul a:active{background:rgba(255,255,255,.18)}
+
+/* hero: spacing and layout come from variables, so the Adjust panel can tune them */
+:root{--h-top:180px; --h-g1:-40px; --h-g2:7px; --h-g3:30px; --h-g4:13px; --h-logo:246px; --h-split:121px; --h-pour:2.1; --h-bot:160px;
+  --dv-w:50px; --dv-t:.5px; --dv-sp:81px;
+  --f-top:8px; --f-bot:31px; --f-h2:52px; --f-gap:14px; --f-gif:268px; --f-col:64px; --f-h3:33px;
+  --i-top:8px; --i-bot:64px; --i-gap:44px; --i-cgap:30px; --i-pad:28px}
+.hero{padding-block:var(--h-top) var(--h-bot)}
+.hero-in{display:grid; grid-template-columns:minmax(0,1fr); justify-items:center; text-align:center}
+.hero-in .lede{margin-top:var(--h-g2); margin-inline:auto}
+.hero-in .btns{margin-top:var(--h-g3); justify-content:center}
+.hero-in .meta{margin-top:var(--h-g4)}
+.hero h1.sipl{font-size:min(var(--h-logo), 26vw); margin:var(--h-g1) 0 0}
+.hero-in.left{justify-items:start; text-align:left}.hero-in.left .lede{margin-inline:0}.hero-in.left .btns{justify-content:flex-start}
+.hero-in.split{grid-template-columns:auto minmax(0,1fr); grid-template-areas:"eb eb" "logo words"; column-gap:var(--h-split); justify-items:start; text-align:left; align-items:center}
+.hero-in.split .eyebrow{grid-area:eb}.hero-in.split .sipl{grid-area:logo}.hero-in.split .words{grid-area:words}
+.hero-in.split .lede{margin:0}.hero-in.split .btns{justify-content:flex-start}
+.words{display:contents}.hero-in.split .words{display:block}
+.eyebrow{font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+.hero h1{font-style:italic; line-height:.9; color:var(--accent-ink)}
+.sipl{display:grid;width:max-content;cursor:pointer;-webkit-tap-highlight-color:transparent;outline-offset:6px;border-radius:12px}
+.sipl .sl{grid-area:1/1;padding:0 .18em .14em .06em;will-change:clip-path}
+.sipl .ghost{color:var(--milky)}
+#slogo.empty{clip-path:inset(100% 0 0 0)}
+.lede{font-family:var(--display); font-size:clamp(21px, 2.4vw, 26px); line-height:1.35; color:var(--ink); max-width:30ch}
+.btns{display:flex; flex-wrap:wrap; gap:10px}
+.btn{display:inline-flex; align-items:center; gap:10px; text-decoration:none; font:500 15px/1 var(--body); padding:15px 22px; border-radius:999px; border:0; cursor:pointer;
+  background:var(--milky); color:var(--accent-ink); transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.btn:active{transform:scale(.95)}
+.btn.solid{background:var(--accent); color:var(--off)}
+.btn svg{width:18px; height:18px; flex:none; fill:currentColor}
+.btn small{font-size:11px; opacity:.75; font-weight:400}
+.meta{font-size:12.5px; color:var(--muted)}
+.phone{width:270px; max-width:100%; aspect-ratio:270/584; border-radius:38px; overflow:hidden; display:block; filter:drop-shadow(0 24px 40px rgba(80,45,55,.22))}
+.phone img{width:100%; height:100%; display:block; object-fit:cover}
+
+/* pearls divider */
+.pearls{display:flex; justify-content:center; gap:9px; padding:24px 0}
+.pearls i{width:9px; height:9px; border-radius:50%; background:var(--pearl)}
+.pearls i:nth-child(n+4){background:none; box-shadow:inset 0 0 0 1.4px var(--muted)}
+
+/* features: one carousel */
+.features{padding-block:var(--f-top) var(--f-bot)}
+.features h2, .install h2{font-size:min(var(--f-h2), 11vw); color:var(--accent-ink); text-align:center}
+.sub{text-align:center; color:var(--muted); margin-top:6px}
+.car{position:relative; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:12px; margin-top:var(--f-gap)}
+.track{display:flex; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; overscroll-behavior-x:contain}
+.track::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%; scroll-snap-align:center; display:grid; grid-template-columns:auto minmax(0,380px); justify-content:center; align-items:center; gap:var(--f-col); padding:4px 0 40px}
+.slide .phone{width:var(--f-gif); filter:none}
+.slide h3{font-size:var(--f-h3); line-height:1.1; color:var(--accent-ink)}
+.slide h3 i{color:var(--accent)}
+.slide p{margin-top:12px; color:var(--ink); font-size:15.5px}
+.arw{all:unset; cursor:pointer; width:46px; height:46px; border-radius:50%; background:var(--milky); display:grid; place-items:center; transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.arw:active{transform:scale(.9)}
+.arw[disabled]{opacity:.35; cursor:default}
+.arw svg{width:20px; height:20px; fill:none; stroke:var(--accent-ink); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.dots{display:flex; justify-content:center; gap:9px}
+.dots button{all:unset; cursor:pointer; width:9px; height:9px; border-radius:50%; box-shadow:inset 0 0 0 1.4px var(--muted); transition:background .3s}
+.dots button[aria-current="true"]{background:var(--pearl); box-shadow:none}
+
+/* install */
+.install{padding-block:var(--i-top) var(--i-bot)}
+.cards{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:var(--i-cgap); margin-top:var(--i-gap)}
+.card{background:var(--card); border-radius:28px; padding:var(--i-pad); min-width:0}
+.card h3{font-size:28px; display:flex; align-items:center; gap:10px; color:var(--accent-ink)}
+.card h3 svg{width:22px; height:22px; fill:var(--accent-ink)}
+.card .why{color:var(--muted); font-size:13.5px; margin-top:6px}
+ol.steps{list-style:none; counter-reset:s; margin:20px 0 0; padding:0; display:grid; gap:14px}
+ol.steps li{counter-increment:s; display:grid; grid-template-columns:34px minmax(0,1fr); gap:12px; align-items:start; font-size:14.5px}
+ol.steps li::before{content:counter(s); width:30px; height:30px; border-radius:50%; background:var(--milky); color:var(--accent-ink); display:grid; place-items:center;
+  font-family:"IM Fell DW Pica", var(--display); font-style:italic; font-size:22px; line-height:1; padding-bottom:2px}
+/* old-style 3 and 4 hang below the line: lift them back to the middle of the pearl */
+ol.steps li:nth-child(n+3)::before{padding-bottom:9px}
+.k{display:inline-flex; align-items:center; gap:5px; padding:1px 9px; border-radius:999px; background:var(--paper); border:1px solid var(--line); font-weight:500; white-space:nowrap}
+.k svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.card .btn{margin-top:22px}
+
+
+/* section divider: a fine line of semicircles, the awning's edge drawn as a single stroke */
+.divider{display:block;width:100%;margin-block:var(--dv-sp);color:var(--accent);overflow:visible}
+/* Adjust panel */
+.tw{position:fixed;right:max(14px, env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:8px;font:500 12.5px/1.3 var(--body);color:var(--accent-ink)}
+.tw-tog{all:unset;cursor:pointer;padding:10px 16px;border-radius:999px;background:var(--accent-ink);color:var(--off);box-shadow:0 6px 18px rgba(80,45,55,.25)}
+.tw-tog:active{transform:scale(.95)}
+.tw-h{margin-top:6px;padding-top:8px;border-top:1px solid var(--line)}.tw-h:first-child{margin:0;padding:0;border:0}
+.tw-p{order:-1;width:min(300px, calc(100vw - 28px));max-height:min(70vh, 560px);overflow:auto;background:var(--card);border-radius:20px;padding:14px 16px;box-shadow:0 12px 32px rgba(80,45,55,.2);display:grid;gap:10px}
+.tw-p[hidden]{display:none}
+.tw-seg{display:flex;gap:4px;padding:3px;border-radius:12px;background:var(--paper)}
+.tw-seg button{all:unset;flex:1;text-align:center;padding:7px 0;border-radius:9px;cursor:pointer}
+.tw-seg button.on{background:var(--milky);font-weight:600}
+.tw-r{display:grid;gap:4px}.tw-r span{display:flex;justify-content:space-between}.tw-r i{font-style:normal;color:var(--muted);font-variant-numeric:tabular-nums}
+.tw-r input{width:100%;accent-color:var(--accent)}
+.tw-b{display:flex;gap:6px;flex-wrap:wrap}.tw-b button{all:unset;cursor:pointer;padding:7px 11px;border-radius:999px;background:var(--milky)}
+.tw-b button:active{transform:scale(.95)}
+/* iPhone sheet */
+.scrim{position:fixed; inset:0; z-index:30; background:rgba(58,40,46,.38); display:flex; align-items:flex-end; justify-content:center; padding:16px max(16px, env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px));
+  opacity:0; pointer-events:none; transition:opacity .3s}
+.scrim.open{opacity:1; pointer-events:auto}
+.sheet{width:min(460px, 100%); background:var(--paper); border-radius:28px; padding:24px 24px 22px; transform:translateY(24px); transition:transform .45s cubic-bezier(.3,1.35,.5,1); max-height:calc(100dvh - 32px); overflow:auto}
+.scrim.open .sheet{transform:none}
+.sheet .row{display:flex; justify-content:space-between; align-items:center; gap:12px}
+.sheet h3{font-size:28px; line-height:1.15}
+.x{all:unset; cursor:pointer; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:var(--card)}
+.x svg{width:14px; height:14px; stroke:var(--accent-ink); stroke-width:1.8; stroke-linecap:round}
+.sheet .btn{width:100%; justify-content:center; margin-top:20px}
+.sheet .note{font-size:12.5px; color:var(--muted); margin-top:12px; text-align:center}
+
+/* footer: the awning's scallops turned up */
+footer{background:var(--accent); color:var(--off); position:relative; margin-top:18px; padding-block:46px 40px}
+footer::before{content:""; position:absolute; left:0; right:0; bottom:100%; height:19px;
+  background:radial-gradient(circle at 18.5px 19px, var(--accent) 18px, transparent 18.6px) 0 0/37px 19px repeat-x}
+footer .wrap{display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:12px}
+footer .logo{font-size:40px}
+footer p{font-size:13px; letter-spacing:.14em}
+footer small{display:block; width:100%; font-size:12px; opacity:.8; letter-spacing:0}
+
+@media (max-width:760px){
+  .hero-in.split{grid-template-columns:minmax(0,1fr); grid-template-areas:"eb" "logo" "words"}
+  .hero-in.split .lede{margin-top:var(--h-g2)}
+  .hero{padding-top:min(var(--h-top), 72px)}
+  .hero h1.sipl{margin-top:max(var(--h-g1), -8px)}
+  .slide{grid-template-columns:minmax(0,1fr); justify-items:center; text-align:center; gap:20px; padding-bottom:24px}
+  .slide .phone{width:min(var(--f-gif), 220px)}
+  .car{grid-template-columns:minmax(0,1fr); gap:0}
+  .arw{position:absolute; top:190px; z-index:2; width:40px; height:40px}
+  .arw.prev{left:0} .arw.next{right:0}
+  .cards{grid-template-columns:minmax(0,1fr)}
+  .nav ul a{padding:8px 9px; font-size:12px; letter-spacing:.02em}
+  .logo{font-size:44px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head><body>
+<header class="awning">
+  <nav class="nav wrap" aria-label="Main">
+    <a class="logo" href="#top" aria-label="sip. home">sip.</a>
+    <ul><li><a href="#how">How it works</a></li><li><a href="#get">Download</a></li></ul>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-in" id="heroIn">
+        <span class="eyebrow">A drink diary</span>
+        <h1 class="sipl" id="sipl" role="button" tabindex="0" aria-label="sip. Tap to sip again"><span class="sl ghost" aria-hidden="true">sip.</span><span class="sl empty" id="slogo">sip.</span></h1>
+        <div class="words">
+        <p class="lede">Snap the cup in your hand, sip to rate it, and watch your month fill up with little stickers. Nothing grand. Just noticing.</p>
+        <div class="btns">
+          <button class="btn solid" type="button" id="ios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.8-3.5.8s-1.8-.8-3-.8C7 7.2 5.5 8.2 4.7 9.6c-1.7 2.9-.4 7.2 1.2 9.6.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8s1.9.8 3.1.8c1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.9-1.1-2.9-4zM14.1 5.5c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1.1.1 2.1-.5 2.7-1.3z"/></svg>Get on iPhone</button>
+          <a class="btn" id="android" href="https://github.com/nosugarlessice/sip./releases/latest/download/sip-android.apk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.6 9.5l1.7-3a.4.4 0 0 0-.7-.4l-1.8 3A10.6 10.6 0 0 0 12 8.2c-1.7 0-3.3.3-4.8 1L5.4 6.1a.4.4 0 0 0-.7.4l1.7 3A9.5 9.5 0 0 0 1.8 17h20.4a9.5 9.5 0 0 0-4.6-7.5zM7 14.4a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm10 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>Download for Android <small>.apk</small></a>
+        </div>
+        <p class="meta">Free · No sign-up · No ads · Works in English and 中文</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <svg class="divider" aria-hidden="true"></svg>
+
+  <section class="features" id="how" aria-roledescription="carousel" aria-label="How it works">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <div class="car">
+        <button class="arw prev" type="button" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <div class="track" id="track">
+        <article class="slide" aria-roledescription="slide" aria-label="1 of 4">
+          <div class="phone"><img src="gif/log.gif" width="270" height="584" loading="lazy" alt="Logging a drink: pick the shop and drink, hold the cup to sip, set the sugar, save"></div>
+          <div class="txt"><h3>Snap it, then <i>sip</i> to rate it</h3><p>Take a photo and sip. cuts your drink out like a sticker, then presses it onto today. Hold the cup to rate it: the longer you sip, the more you liked it.</p></div>
+        </article>
+        <article class="slide" aria-roledescription="slide" aria-label="2 of 4">
+          <div class="phone"><img src="gif/stamp.gif" width="270" height="584" loading="lazy" alt="A shop’s stamp card fills on the tenth drink, a fresh card starts, and later the shop levels up"></div>
+          <div class="txt"><h3>A stamp card for <i>every</i> shop</h3><p>Each drink adds a pearl to that shop’s card. Ten fill a card and a fresh one starts on the next. Keep coming back and the shop levels up, from 1 to 5.</p></div>
+        </article>
+        <article class="slide" aria-roledescription="slide" aria-label="3 of 4">
+          <div class="phone"><img src="gif/receipt.gif" width="270" height="584" loading="lazy" alt="The archive: pulling out the month’s receipt"></div>
+          <div class="txt"><h3>A receipt for <i>every</i> month</h3><p>Pull a receipt out of the slot: every cup, your sip of the month, and where you went most.</p></div>
+        </article>
+        <article class="slide" aria-roledescription="slide" aria-label="4 of 4">
+          <div class="phone"><img src="gif/pick.gif" width="270" height="584" loading="lazy" alt="Pick for me: shaking out a drink you’d order again, then shaking again"></div>
+          <div class="txt"><h3>Can’t decide? <i>Shake</i> for one</h3><p>Tap Pick for me, or just shake your phone. sip. picks a drink you rated well and would order again. Shake again, or log it in one tap.</p></div>
+        </article>
+        </div>
+        <button class="arw next" type="button" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+      <div class="dots" id="dots"><button aria-label="Slide 1"></button><button aria-label="Slide 2"></button><button aria-label="Slide 3"></button><button aria-label="Slide 4"></button></div>
+    </div>
+  </section>
+
+  <svg class="divider" aria-hidden="true"></svg>
+
+  <section class="install" id="get">
+    <div class="wrap">
+      <h2>Get sip.</h2>
+      <p class="sub">Free on both. Your drinks stay on your phone.</p>
+      <div class="cards">
+        <div class="card">
+          <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.8-3.5.8s-1.8-.8-3-.8C7 7.2 5.5 8.2 4.7 9.6c-1.7 2.9-.4 7.2 1.2 9.6.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8s1.9.8 3.1.8c1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.9-1.1-2.9-4zM14.1 5.5c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1.1.1 2.1-.5 2.7-1.3z"/></svg>iPhone</h3>
+          <p class="why">sip. installs from Safari as a web app: it gets its own icon, opens full screen and works offline. No App Store needed.</p>
+          <ol class="steps">
+            <li><span>Open this page in <b>Safari</b> and tap <span class="k">Open sip.</span> below.</span></li>
+            <li><span>Tap <span class="k"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11v9h12v-9"/></svg>Share</span> at the bottom of the screen.</span></li>
+            <li><span>Scroll down and tap <span class="k"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>Add to Home Screen</span>, then <b>Add</b>.</span></li>
+            <li><span>Open sip. from your home screen, like any app.</span></li>
+          </ol>
+          <a class="btn solid" href="app/">Open sip.</a>
+        </div>
+        <div class="card">
+          <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.6 9.5l1.7-3a.4.4 0 0 0-.7-.4l-1.8 3A10.6 10.6 0 0 0 12 8.2c-1.7 0-3.3.3-4.8 1L5.4 6.1a.4.4 0 0 0-.7.4l1.7 3A9.5 9.5 0 0 0 1.8 17h20.4a9.5 9.5 0 0 0-4.6-7.5zM7 14.4a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm10 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>Android</h3>
+          <p class="why">A real app you install from the file. Android asks once because sip. isn’t in the Play Store yet.</p>
+          <ol class="steps">
+            <li><span>Tap <span class="k">Download .apk</span> and open the file from the notification or <b>Downloads</b>.</span></li>
+            <li><span>If Android says your browser can’t install apps, tap <b>Settings</b>, turn on <b>Allow from this source</b>, and go back.</span></li>
+            <li><span>Tap <b>Install</b>. If Play Protect warns that the app is unknown, tap <b>More details → Install anyway</b>.</span></li>
+          </ol>
+          <a class="btn solid" href="https://github.com/nosugarlessice/sip./releases/latest/download/sip-android.apk">Download .apk</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="logo" href="#top">sip.</a>
+    <p>days in cups</p>
+    <small>© 2026 sip. · Free, no sign-up, no ads, no tracking.</small>
+  </div>
+</footer>
+
+<div class="scrim" id="sheet" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t">
+    <div class="row"><h3 id="sh-t">Add sip. to your iPhone</h3><button class="x" type="button" id="close" aria-label="Close"><svg viewBox="0 0 14 14"><path d="M2 2l10 10M12 2L2 12"/></svg></button></div>
+    <ol class="steps">
+      <li><span>Make sure you’re in <b>Safari</b>, then tap <span class="k">Open sip.</span> below.</span></li>
+      <li><span>Tap <span class="k"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11v9h12v-9"/></svg>Share</span>.</span></li>
+      <li><span>Tap <span class="k"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>Add to Home Screen</span>, then <b>Add</b>.</span></li>
+      <li><span>Open sip. from your home screen.</span></li>
+    </ol>
+    <a class="btn solid" href="app/">Open sip.</a>
+    <p class="note">It works offline once added. Your drinks are saved on your phone only.</p>
+  </div>
+</div>
+
+<script>
+const sheet=document.getElementById('sheet'),ios=document.getElementById('ios'),cl=document.getElementById('close');
+const open=()=>{sheet.classList.add('open');sheet.setAttribute('aria-hidden','false');cl.focus();};
+const close=()=>{sheet.classList.remove('open');sheet.setAttribute('aria-hidden','true');ios.focus();};
+ios.addEventListener('click',open);cl.addEventListener('click',close);
+sheet.addEventListener('click',e=>{if(e.target===sheet)close();});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&sheet.classList.contains('open'))close();});
+const track=document.getElementById('track'),slides=[...track.children],dots=[...document.querySelectorAll('#dots button')],prev=document.querySelector('.arw.prev'),next=document.querySelector('.arw.next');
+let cur=0;const go=i=>{i=Math.max(0,Math.min(slides.length-1,i));cur=i;track.scrollTo({left:slides[i].offsetLeft-track.offsetLeft,behavior:'smooth'});};
+const sync=()=>{cur=Math.round(track.scrollLeft/track.clientWidth);dots.forEach((d,i)=>d.setAttribute('aria-current',i===cur));prev.disabled=cur===0;next.disabled=cur===slides.length-1;};
+prev.addEventListener('click',()=>go(cur-1));next.addEventListener('click',()=>go(cur+1));dots.forEach((d,i)=>d.addEventListener('click',()=>go(i)));
+track.addEventListener('scroll',()=>{clearTimeout(track._t);track._t=setTimeout(sync,60);},{passive:true});sync();
+addEventListener('resize',()=>{track.scrollLeft=slides[cur].offsetLeft-track.offsetLeft;});
+/* the app's opening: the logo is sipped, a slow first draw, a pause, then it drains (with the slurp). Tap it to sip again. */
+const sipEase=t=>{const io=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;return t<.4?.16*io(t/.4):t<.56?.16:.16+.84*Math.pow((t-.56)/.44,1.7);};
+const Snd={ctx:null,ac(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!this.ctx){this.ctx=new AC();this.m=this.ctx.createGain();this.m.gain.value=.8;this.m.connect(this.ctx.destination);}if(this.ctx.state==='suspended')this.ctx.resume();return this.ctx;}catch(e){return null;}},
+  noise(c,o){const n=Math.floor(c.sampleRate*o.dur),b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+    const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain(),T=c.currentTime+(o.t||0);s.buffer=b;f.type='bandpass';f.frequency.setValueAtTime(o.f,T);if(o.f1)f.frequency.linearRampToValueAtTime(o.f1,T+o.dur);f.Q.value=o.q||1;
+    g.gain.setValueAtTime(.0001,T);s.connect(f);f.connect(g);g.connect(this.m);s.start(T);s.stop(T+o.dur+.03);return g;},
+  tone(c,o){const os=c.createOscillator(),g=c.createGain(),T=c.currentTime+(o.t||0);os.frequency.setValueAtTime(o.f0,T);os.frequency.exponentialRampToValueAtTime(o.f1,T+o.dur);
+    g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(o.vol,T+.004);g.gain.exponentialRampToValueAtTime(.0001,T+o.dur);os.connect(g);g.connect(this.m);os.start(T);os.stop(T+o.dur+.03);},
+  sipUp(dur,ease){const c=this.ac();if(!c||c.state!=='running')return;const T=c.currentTime,g=this.noise(c,{dur:dur+.05,f:420,f1:1500,q:3.5});
+    for(let i=1;i<=20;i++){const t=i/20,rate=(ease(Math.min(1,t+.05))-ease(Math.max(0,t-.05)))*10;g.gain.linearRampToValueAtTime(Math.min(.42,.06+rate*.22),T+t*dur);}
+    g.gain.linearRampToValueAtTime(.0001,T+dur+.05);const l=c.createOscillator(),lg=c.createGain();l.frequency.value=19;lg.gain.value=.12;l.connect(lg);lg.connect(g.gain);l.start(T);l.stop(T+dur+.06);
+    this.tone(c,{f0:280,f1:880,t:dur-.08,dur:.14,vol:.09});}};
+const sipl=document.getElementById('sipl'),slogo=document.getElementById('slogo'),still=matchMedia('(prefers-reduced-motion: reduce)').matches;let busy=false;
+/* poured, not sipped: the drink rises from the bottom of the empty (milky) logo, quick at first, easing as it reaches the brim */
+const pourEase=t=>1-Math.pow(1-t,2.1);
+function pour(){if(busy)return;busy=true;slogo.classList.remove('empty');
+  const H=slogo.offsetHeight,W=slogo.offsetWidth,D=(+getComputedStyle(document.documentElement).getPropertyValue('--h-pour')||1.6)*1000;Snd.sipUp(D/1000,pourEase);const t0=performance.now();
+  const step=now=>{const t=Math.min(1,(now-t0)/D),y=(1-pourEase(t))*(H+24)-12,amp=1-t*.6,ph=now/140,pts=[];
+    for(let x=-30;x<=W+30;x+=6)pts.push(`${x}px ${(y+amp*(7*Math.sin(x*.045+ph)+3*Math.sin(x*.11-ph*1.6))).toFixed(1)}px`);
+    slogo.style.clipPath=`polygon(${pts.join(',')},${W+30}px ${H+40}px,-30px ${H+40}px)`;
+    if(t<1)requestAnimationFrame(step);else{slogo.style.clipPath='';busy=false;}};
+  requestAnimationFrame(step);}
+function replay(){if(busy)return;slogo.style.clipPath='';slogo.classList.add('empty');setTimeout(pour,250);}
+if(still)slogo.classList.remove('empty');else setTimeout(pour,700);
+sipl.addEventListener('click',()=>{Snd.ac();replay();});
+sipl.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();Snd.ac();replay();}});
+
+/* ---------- Adjust panel (preview only; remove before going live) ---------- */
+const TW=[['#','Top (big logo)'],['--h-top','Space above',0,240,'px',180],['--h-g1','A drink diary → logo',-60,80,'px',-40],['--h-logo','Logo size',100,300,'px',246],['--h-g2','Logo → words',-40,90,'px',7],
+  ['--h-g3','Words → buttons',0,90,'px',30],['--h-g4','Buttons → small print',0,50,'px',13],['--h-split','Logo ↔ words (side by side)',0,200,'px',121],['--h-pour','Pour time',.6,3.5,'s',2.1],['--h-bot','Space below',0,240,'px',160],
+  ['#','Dividers'],['--dv-w','Scallop size',16,100,'px',50],['--dv-t','Line thickness',.3,3,'px',.5],['--dv-sp','Space around dividers',0,160,'px',81],
+  ['#','How it works'],['--f-top','Space above',0,160,'px',8],['--f-h2','Title size',28,80,'px',52],['--f-gap','Title → slides',0,90,'px',14],['--f-gif','Phone size',160,340,'px',268],['--f-col','Phone ↔ words',0,120,'px',64],['--f-h3','Slide title size',20,52,'px',33],['--f-bot','Space below',0,160,'px',31],
+  ['#','Get sip.'],['--i-top','Space above',0,160,'px',8],['--i-gap','Title → cards',0,90,'px',44],['--i-cgap','Between cards',0,60,'px',30],['--i-pad','Inside cards',12,56,'px',28],['--i-bot','Space below',0,160,'px',64]];
+const heroIn=document.getElementById('heroIn'),root=document.documentElement;const ADJ=/[?&]adjust\b/.test(location.search);let TS={};if(ADJ)try{TS=JSON.parse(localStorage.getItem('sip-site-tw4')||'{}');}catch(e){}
+const saveTS=()=>{try{localStorage.setItem('sip-site-tw4',JSON.stringify(TS));}catch(e){}};
+const drawDiv=()=>{const cs=getComputedStyle(root),W=parseFloat(cs.getPropertyValue('--dv-w'))||64,t=parseFloat(cs.getPropertyValue('--dv-t'))||1.2,H=W/2+t;
+  document.querySelectorAll('svg.divider').forEach((sv,i)=>{sv.setAttribute('height',H);sv.innerHTML=`<defs><pattern id="dvp${i}" width="${W}" height="${H}" patternUnits="userSpaceOnUse"><path d="M0 ${t/2} A${W/2} ${W/2} 0 0 0 ${W} ${t/2}" fill="none" stroke="currentColor" stroke-width="${t}" stroke-linecap="round"/></pattern></defs><rect width="100%" height="${H}" fill="url(#dvp${i})"/>`;});};
+const applyTS=()=>{for(const [v,,,,u,d] of TW){if(v==='#')continue;const x=TS[v]??d;root.style.setProperty(v,u==='s'?String(x):x+u);}drawDiv();heroIn.className='hero-in '+((TS.layout||'split')!=='center'?(TS.layout||'split'):'');};
+applyTS();
+const tp=document.createElement('div');tp.className='tw';
+tp.innerHTML=`<button class="tw-tog" type="button" aria-expanded="false">Adjust</button><div class="tw-p" hidden>
+  <div class="tw-h"><b>Layout</b></div><div class="tw-seg">${[['center','Centered'],['left','Left'],['split','Side by side']].map(([k,l])=>`<button type="button" data-l="${k}">${l}</button>`).join('')}</div>
+  ${TW.map(([v,l,mn,mx,u,d])=>v==='#'?`<div class="tw-h"><b>${l}</b></div>`:`<label class="tw-r"><span>${l}<i data-o="${v}"></i></span><input type="range" min="${mn}" max="${mx}" step="${u==='s'||v==='--dv-t'?.1:1}" data-v="${v}"></label>`).join('')}
+  <div class="tw-b"><button type="button" data-a="play">Pour again</button><button type="button" data-a="copy">Copy values</button><button type="button" data-a="reset">Reset</button></div></div>`;
+if(ADJ)document.body.appendChild(tp);
+const twSync=()=>{tp.querySelectorAll('[data-l]').forEach(b=>b.classList.toggle('on',(TS.layout||'split')===b.dataset.l));
+  for(const [v,,,,u,d] of TW){if(v==='#')continue;const x=TS[v]??d;tp.querySelector(`[data-v="${v}"]`).value=x;tp.querySelector(`[data-o="${v}"]`).textContent=x+u;}};
+twSync();
+tp.querySelector('.tw-tog').addEventListener('click',e=>{const p=tp.querySelector('.tw-p');p.hidden=!p.hidden;e.currentTarget.setAttribute('aria-expanded',String(!p.hidden));});
+tp.addEventListener('input',e=>{const v=e.target.dataset.v;if(!v)return;TS[v]=+e.target.value;saveTS();applyTS();twSync();});
+tp.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.l){TS.layout=b.dataset.l;saveTS();applyTS();twSync();}
+  if(b.dataset.a==='play'){Snd.ac();replay();}
+  if(b.dataset.a==='reset'){TS={};saveTS();applyTS();twSync();}
+  if(b.dataset.a==='copy'){const t='layout: '+(TS.layout||'split')+'\n'+TW.map(([v,l,,,u,d])=>v==='#'?`\n[${l}]`:`${l}: ${TS[v]??d}${u}`).join('\n');
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy values',1400);},()=>{prompt('Copy these:',t);});}});
+</script>
+
+</body></html>

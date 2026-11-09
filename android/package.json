@@ -1,0 +1,11 @@
+{
+  "name": "sip-android",
+  "version": "0.1.0",
+  "private": true,
+  "description": "sip. as an Android app: the same app as /app on the website, wrapped with Capacitor.",
+  "dependencies": {
+    "@capacitor/android": "6.2.1",
+    "@capacitor/cli": "6.2.1",
+    "@capacitor/core": "6.2.1"
+  }
+}

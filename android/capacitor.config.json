@@ -1,0 +1,6 @@
+{
+  "appId": "app.sip.diary",
+  "appName": "sip.",
+  "webDir": "www",
+  "android": { "allowMixedContent": false, "backgroundColor": "#F3F1E8" }
+}
