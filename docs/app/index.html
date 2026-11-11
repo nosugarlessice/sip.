@@ -516,6 +516,8 @@ html.zh .receipt .rh{margin-bottom:12px}
 .cubes-row{display:flex;justify-content:space-between;gap:6px}
 .me-sum{text-align:center;font-size:var(--fs-small);color:var(--muted);margin-top:var(--me-sum-top)}
 .me-sum b{color:var(--ink);font-weight:600}
+.sc-empty{display:flex;flex-direction:column;gap:10px;padding:4px 2px 6px}
+.sc-empty-b{display:flex;flex-wrap:wrap;gap:8px}
 .fav-card{background:var(--card);border-radius:var(--radius);padding:var(--me-fav-pad) calc(var(--me-fav-pad) + 2px);display:flex;flex-direction:column;gap:var(--me-fav-gap)}
 .fav-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .fav-name{font-family:var(--display);font-style:italic;font-size:30px;line-height:1.05;color:var(--accent-ink)}
@@ -775,7 +777,7 @@ html.zh .lvcard.big .lv-stamp{padding-top:10px;padding-bottom:0;line-height:48px
 const TODAY=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());
 /* DEMO: the prototype ships sample drinks; the installed app starts empty */
 const DEMO=false;
-const BUILD='Nov 10, 10:30 PM';
+const BUILD='Nov 10, 10:40 PM';
 const KEY=DEMO?'sip-proto-v5':'sip-v1', TKEY='sip-theme';
 const THEMES=[
   {id:'matcha',name:'Longjing Green',c:'#8DA189'},
@@ -889,6 +891,9 @@ const PHONE=document.getElementById('phone');
 const $=s=>document.querySelector(s);
 
 const allBrands=()=>BRANDS.concat(S.brands);
+/* starter shelf: common shops show as empty stamp cards until you log there; remove any you don't have nearby */
+const STARTER=['chagee','heytea','mixue','luckin','sbux','gongcha'];
+const pinned=()=>(S.pinned||STARTER).filter(id=>brand(id));
 const brand=id=>allBrands().find(b=>b.id===id)||{id,name:id,cn:''};
 const drink=id=>MENU.find(d=>d.id===id)||S.customs.find(d=>d.id===id)||{id,b:'',name:'Unknown drink',c:['#EDE7D8','#CDBFA5'],caf:0};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -917,7 +922,7 @@ const ZH_BASE={
 /* shelf */
 'All':'全部','Search drinks or brands':'搜索饮品或品牌','Search shelf':'搜索收藏柜','Level {n}':'等级 {n}','Top level':'已是最高等级',
 '{n} more to Level {l}':'再{n}杯升到等级 {l}','{n} drinks · avg {a} of 4':'{n}杯 · 平均{a}/4','{n} drink · avg {a} of 4':'{n}杯 · 平均{a}/4',
-'{n} card filled':'集满{n}张卡','{n} cards filled':'集满{n}张卡','{n}×':'{n}次','Nothing here yet.':'这里还是空的。',
+'{n} card filled':'集满{n}张卡','{n} cards filled':'集满{n}张卡','{n}×':'{n}次','Nothing here yet.':'这里还是空的。','No drinks yet':'还没喝过','Nothing logged here yet.':'这里还没有记录。','Log a drink here':'在这家记一杯','Remove from shelf':'从货架移除','Removed from your shelf':'已从货架移除',
 /* pick for me */
 'Get this one':'就喝这个','Shaking…':'摇一摇…','Shake again':'再摇一次','Log it':'记下来','Pick a drink for me':'帮我选一杯',
 'Picking from the drinks you’d order again':'从你还会点的饮品里挑','Rate a few drinks you’d order again first':'先给几杯还会点的饮品打分吧',
@@ -1388,6 +1393,7 @@ function viewShelf(){
   if(q) items=items.filter(s=>{const d=drink(s.drink),b=brand(d.b);return (d.name+' '+(d.cn||'')+' '+b.name+' '+(b.cn||'')).toLowerCase().includes(q);});
   const groups={};items.forEach(s=>(groups[drink(s.drink).b]=groups[drink(s.drink).b]||[]).push(s));
   const order=allBrands().map(b=>b.id).filter(id=>groups[id]);
+  if(U.shelfF==='all')pinned().forEach(id=>{if(groups[id]||S.entries.some(e=>drink(e.drink).b===id))return;const b=brand(id);if(q&&!(b.name+' '+(b.cn||'')).toLowerCase().includes(q))return;order.push(id);groups[id]=[];});
   const F=[['all','All'],['again','Again'],['maybe','Maybe'],['never','Never']];
   return `<div class="banner"><div class="topbar"><h1 class="h2">Shelf</h1>${pickBtn}</div></div>
   <div style="display:flex;flex-direction:column;gap:var(--shelf-tools-gap);margin-top:6px">
@@ -1396,14 +1402,14 @@ function viewShelf(){
   <div class="shelf-list">${order.length?order.map(id=>{
     const b=brand(id),list=groups[id].sort((a,c)=>c.avg-a.avg),open=q?U.open[id]!==false:!!U.open[id];
     const visits=sortE(S.entries.filter(e=>drink(e.drink).b===id)),n=visits.length+(U.lvDemo?LVDEMO[allBrands().findIndex(x=>x.id===id)%LVDEMO.length]:0),lv=levelOf(n),done=Math.floor((n-1)/10),fill=n?((n-1)%10)+1:0,cur=visits.slice(done*10),full=Math.floor(n/10);
-    const avg=list.reduce((a,s)=>a+s.sum,0)/list.reduce((a,s)=>a+s.n,0),r=rng(hash(id));
+    const avg=list.length?list.reduce((a,s)=>a+s.sum,0)/list.reduce((a,s)=>a+s.n,0):0,r=rng(hash(id));
     let st='';for(let i=0;i<10;i++){const rot=Math.round(r()*36-18);const sc=(.9+r()*.12).toFixed(2);st+=i<fill?`<span class="stamp on" style="--rot:${rot*4}deg;--sc:${sc};--k:${i}" title="${cur[i]?fmtDate(cur[i].date):''}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#pearl-${prefs.pearl}"/></svg></span>`:'<span class="stamp"></span>';}
     const layers=Math.min(full,3);
     return `<div class="scard-w" style="--stack:${layers}">${Array.from({length:layers},(_,i)=>`<span class="sc-layer" style="--i:${i+1}" aria-hidden="true"></span>`).join('')}<div class="scard"><button class="scard-h" data-act="toggle" data-id="${id}" aria-expanded="${open}">
       <span class="sc-top"><span class="h3">${esc(b.name)}${b.cn?`<span class="cn">${esc(b.cn)}</span>`:''}</span><span class="blv" data-l="${lv.l}" title="${lv.next?(lv.next-n)+' more to Level '+(lv.l+1):'Top level'}">Level ${lv.l}</span></span>
       <span class="stamps-row"><span class="stamps">${st}</span><span class="sc-n">${fill}/10</span></span>
-      <span class="sc-foot"><span>${list.length} drink${list.length>1?'s':''} · avg ${avg.toFixed(1)} of 4${full?` · ${full} card${full>1?'s':''} filled`:''}</span><span class="chev">${ICON.next}</span></span></button>
-    <div class="drawer ${open?'open':''}"><div class="drawer-in"><div class="brand-items">${list.map((s,k)=>{const d=drink(s.drink);return `<button class="row" style="--k:${k}" data-act="open" data-id="${s.last.id}">${cupImg(s.photoE||s.last)}<span class="t"><span class="name">${esc(d.name)}</span><span class="meta">${s.n}× · ${s.last.note?`“${esc(s.last.note)}”`:esc(s.last.sugar)+' sugar'}</span></span><span class="r">${stars(s.avg)}${pill(s.last.again)}</span></button>`;}).join('')}</div></div></div></div></div>`;}).join(''):'<div class="empty-note">Nothing here yet.</div>'}</div>`;
+      <span class="sc-foot"><span>${!list.length?'No drinks yet':`${list.length} drink${list.length>1?'s':''} · avg ${avg.toFixed(1)} of 4`}${full?` · ${full} card${full>1?'s':''} filled`:''}</span><span class="chev">${ICON.next}</span></span></button>
+    <div class="drawer ${open?'open':''}"><div class="drawer-in"><div class="brand-items">${!list.length?`<div class="sc-empty"><span class="small">Nothing logged here yet.</span><span class="sc-empty-b"><button class="btn" data-act="brandlog" data-id="${id}">Log a drink here</button><button class="btn ghost" data-act="unpin" data-id="${id}">Remove from shelf</button></span></div>`:''}${list.map((s,k)=>{const d=drink(s.drink);return `<button class="row" style="--k:${k}" data-act="open" data-id="${s.last.id}">${cupImg(s.photoE||s.last)}<span class="t"><span class="name">${esc(d.name)}</span><span class="meta">${s.n}× · ${s.last.note?`“${esc(s.last.note)}”`:esc(s.last.sugar)+' sugar'}</span></span><span class="r">${stars(s.avg)}${pill(s.last.again)}</span></button>`;}).join('')}</div></div></div></div></div>`;}).join(''):'<div class="empty-note">Nothing here yet.</div>'}</div>`;
 }
 
 /* top three (all time): drinks you've given four pearls. Up to three they rank themselves (first logged first); past three you pick */
@@ -1521,7 +1527,7 @@ function viewSettings(){
   else favHTML=`<div class="fav-card ask"><span class="fav-q">What’s your favorite brand so far?</span><div class="chips">${counts.map(x=>`<button class="chip ${S.fav===x.b.id?'on':''}" data-act="favset" data-v="${x.b.id}">${esc(x.b.name)}</button>`).join('')}</div></div>`;
   return `<div class="banner"><div class="topbar"><h1 class="h2">Me</h1></div></div>
   ${first?`<div class="me-sum">Sipping since ${MON[pd(first.date).getMonth()]} ${pd(first.date).getFullYear()} · <b>${ents.length}</b> drinks · <b>${Object.keys(bset).length}</b> shops</div>`:''}
-  <div class="section me-fav"><div class="section-h"><span class="eyebrow">Favorite brand so far</span>${fav?`<button class="link-btn" data-act="favedit">Change</button>`:''}</div>${favHTML}</div>
+  ${!counts.length&&!fav?'':`<div class="section me-fav"><div class="section-h"><span class="eyebrow">Favorite brand so far</span>${fav?`<button class="link-btn" data-act="favedit">Change</button>`:''}</div>${favHTML}</div>`}
   ${t3.length?`<div class="section me-top"><div class="section-h"><span class="eyebrow">Top three drinks</span>${c4>3?`<button class="link-btn" data-act="rank">${(S.ranks||{}).all?'Re-rank':'Rank them'}</button>`:''}</div>
     <div class="podium">${t3.map((t,i)=>{const d=drink(t.drink);return `<button class="row rk" data-act="open" data-id="${t.e.id}"><span class="rk-n">${i+1}</span>${cupImg(t.e)}<span class="t"><span class="name">${esc(d.name)}</span><span class="meta">${esc(brand(d.b).name)} · had ${t.n}×</span></span></button>`;}).join('')}</div>
     ${c4>3?`<div class="small rk-hint">${c4} drinks have earned all four pearls.${(S.ranks||{}).all?'':' Showing the first three you logged.'}</div>`:''}</div>`:''}
@@ -1692,7 +1698,7 @@ const touchy=()=>{try{return matchMedia('(pointer:coarse)').matches;}catch(e){re
 function setPlus(open){const p=$('.plus');if(p)p.setAttribute('aria-label',open?'Close Log a drink':'Log a drink');}
 function openLog(date,preset){mlWarm();
   U.log={step:1,date:date||TODAY,brand:null,drink:null,preset:false,q:'',other:'',custom:'',shot:'none',raw:null,form:{sugar:'30%',rating:0,note:'',again:'',photo:null,cut:false,withOpen:false,withBox:null,with:{name:'',drink:'',other:'',rating:0,note:''}}};
-  if(preset){U.log.brand=preset.brand;U.log.preset=true;pickDrink(preset.drink);}
+  if(preset){U.log.brand=preset.brand;U.log.preset=true;if(preset.drink)pickDrink(preset.drink);}
   PHONE.classList.add('log-open');setPlus(true);renderLog('intro');
   if(touchy()){const inp=$('#log .viewfinder input');if(inp)try{inp.click();}catch(e){}}
 }
@@ -1968,6 +1974,8 @@ document.addEventListener('click',ev=>{
     case 'lang':{if(LANG===v||U.langBusy)break;U.langBusy=true;Snd.tick();const ph=$('#phone');ph.classList.add('lang-out');
       setTimeout(()=>{LANG=v;lsSet('sip-lang',v);if(LANG==='en')applyLang();render({keep:true});buildTabbar();applyLang();twBuild();
         requestAnimationFrame(()=>{ph.classList.remove('lang-out');setTimeout(()=>{U.langBusy=false;},600*SP());});},560*SP());break;}
+    case 'unpin':{const id=t.dataset.id;S.pinned=pinned().filter(x=>x!==id);save();delete U.open[id];render({keep:true});toast('Removed from your shelf');Snd.tick();break;}
+    case 'brandlog':openLog(TODAY,{brand:t.dataset.id});break;
     case 'favset':S.fav=v;U.favEdit=false;save();render({keep:true});Snd.stamp();buzz(15);break;
     case 'setdrop':{U.setOpen=!U.setOpen;t.setAttribute('aria-expanded',String(U.setOpen));$('#setdrawer').classList.toggle('open',U.setOpen);Snd.tick();if(U.setOpen)setTimeout(()=>{const v=$('#view');v.scrollTo({top:v.scrollTop+180,behavior:'smooth'});},120*SP());break;}
     case 'favedit':U.favEdit=true;render({keep:true});Snd.tick();break;
@@ -1978,8 +1986,8 @@ document.addEventListener('click',ev=>{
     case 'picklog':{const s=U.pick.s;closePick();openLog(TODAY,{brand:drink(s.drink).b,drink:s.drink});break;}
     case 'closelog':closeLog();break;
     case 'back':{if(L.step===4&&L.preset)goStep(1);else if(L.step===1&&L.shot!=='none'){L.shot='none';L.form.photo=null;renderLog();}else if(L.step>1)goStep(L.step-1);break;}
-    case 'skipphoto':L.form.photo=null;L.shot='none';goStep(L.preset&&L.drink?4:2);break;
-    case 'usephoto':goStep(L.preset&&L.drink?4:2);break;
+    case 'skipphoto':L.form.photo=null;L.shot='none';goStep(L.preset&&L.drink?4:L.preset&&L.brand?3:2);break;
+    case 'usephoto':goStep(L.preset&&L.drink?4:L.preset&&L.brand?3:2);break;
     case 'withopen':L.form.withOpen=true;renderLog();Snd.tick();setTimeout(()=>{const n=$('#wname');if(n)n.focus({preventScroll:true});},60);break;
     case 'withclose':L.form.withOpen=false;L.form.with={name:'',drink:'',other:'',rating:0,note:''};renderLog();Snd.tick();break;
     case 'withname':L.form.with.name=v;renderLog();Snd.tick();break;
