@@ -93,7 +93,8 @@ img{-webkit-user-drag:none;user-select:none}
   body{padding-block:0;gap:0;display:block}
   .about{display:none}
   :root{padding:0!important}
-  html,body{background:var(--paper)}
+  html,body{background:var(--card)}
+  html.ios-band .tabbar{padding-bottom:8px}
   body{padding:0!important}
   /* edge to edge: the awning stripes run up under the status bar, the tab bar runs down to the bottom edge */
   html,body{overflow:hidden;overscroll-behavior:none}
@@ -782,7 +783,7 @@ html.zh .lvcard.big .lv-stamp{padding-top:10px;padding-bottom:0;line-height:48px
 const TODAY=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());
 /* DEMO: the prototype ships sample drinks; the installed app starts empty */
 const DEMO=false;
-const BUILD='Nov 10, 10:45 PM';
+const BUILD='Nov 10, 10:55 PM';
 const KEY=DEMO?'sip-proto-v5':'sip-v1', TKEY='sip-theme';
 const THEMES=[
   {id:'matcha',name:'Longjing Green',c:'#8DA189'},
@@ -2118,11 +2119,12 @@ document.documentElement.classList.add('no-t');
 applyTheme();applyPearl();twApply();buildTabbar();buildOpener();twBuild();applyLang();setTimeout(twSyncColors,700);
 ready=Promise.resolve().then(()=>{for(const k in PH)rimURL(PH[k],'sm');render();});
 requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.remove('no-t')));
-/* iPhone Home Screen app: with the see-through status bar (stripes behind the clock), iOS reports the screen
-   shorter by the status bar's height, leaving a band under the tab bar. Size the app from the real screen there. */
-function fitStandalone(){const ph=$('#phone');if(!ph||!navigator.standalone)return;
+/* iPhone Home Screen app: iOS keeps a strip below the page for itself (see fitStandalone) */
+function fitStandalone(){
+  /* iOS draws its own strip below the page and paints it with the page background (it can't hold buttons),
+     so the background is the tab bar's color and the tab bar drops its own bottom padding when the strip is there */
   const port=matchMedia('(orientation: portrait)').matches,H=port?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);
-  if(H>innerHeight+1){ph.style.bottom='auto';ph.style.height=H+'px';}else{ph.style.bottom='';ph.style.height='';}}
+  document.documentElement.classList.toggle('ios-band',!!navigator.standalone&&H-innerHeight>20);}
 fitStandalone();addEventListener('resize',fitStandalone);addEventListener('orientationchange',()=>setTimeout(fitStandalone,250));
 
 {let rf=false;try{rf=sessionStorage.getItem('sip-refreshed')==='1';sessionStorage.removeItem('sip-refreshed');}catch(e){}
