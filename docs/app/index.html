@@ -215,6 +215,14 @@ img{-webkit-user-drag:none;user-select:none}
 .pill.maybe{background:transparent;color:var(--accent-ink);box-shadow:inset 0 0 0 1px var(--accent)}
 .pill.no{background:var(--accent-ink);color:var(--paper)}
 
+/* pull to refresh: a spinning chip under the awning while the app reloads */
+.ptr{position:absolute;left:50%;z-index:6;width:38px;height:38px;margin-left:-19px;border-radius:50%;background:var(--card);box-shadow:0 4px 14px rgba(41,48,42,.18);display:grid;place-items:center;pointer-events:none;
+  animation:ptrIn calc(.35s * var(--spd)) var(--spring) both}
+.ptr svg{width:22px;height:22px;animation:ptrSpin .8s linear infinite}
+.ptr circle{fill:none;stroke:var(--accent-ink);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:38 100}
+@keyframes ptrIn{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+@keyframes ptrSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ptr svg{animation-duration:1.6s}}
 /* pearls on pull */
 .pearl{position:absolute;top:-16px;z-index:5;width:13px;height:13px;border-radius:50%;pointer-events:none;
   background:var(--pearl);
@@ -767,7 +775,7 @@ html.zh .lvcard.big .lv-stamp{padding-top:10px;padding-bottom:0;line-height:48px
 const TODAY=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());
 /* DEMO: the prototype ships sample drinks; the installed app starts empty */
 const DEMO=false;
-const BUILD='Nov 10, 10:25 PM';
+const BUILD='Nov 10, 10:30 PM';
 const KEY=DEMO?'sip-proto-v5':'sip-v1', TKEY='sip-theme';
 const THEMES=[
   {id:'matcha',name:'Longjing Green',c:'#8DA189'},
@@ -1867,6 +1875,9 @@ view.addEventListener('touchmove',e=>{if(ty0!=null&&e.touches[0].clientY-ty0>60)
 /* pull to refresh: the boba drop, then the app reloads (picking up any new version); no opening animation after */
 let refreshing=false;
 function pullRefresh(){if(refreshing||U.log)return;refreshing=true;
+  {const main=$('#main'),ban=$('#view .banner'),mr=main.getBoundingClientRect(),top=ban?Math.max(12,ban.getBoundingClientRect().bottom-mr.top-14):16;
+   const c=document.createElement('div');c.className='ptr';c.setAttribute('role','status');c.setAttribute('aria-label','Refreshing');c.style.top=top+'px';
+   c.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>';main.appendChild(c);}
   try{navigator.serviceWorker&&navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{});}catch(e){}
   setTimeout(()=>{try{sessionStorage.setItem('sip-refreshed','1');}catch(e){}location.reload();},1150*SP());}
 
