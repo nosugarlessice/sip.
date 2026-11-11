@@ -767,6 +767,7 @@ html.zh .lvcard.big .lv-stamp{padding-top:10px;padding-bottom:0;line-height:48px
 const TODAY=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());
 /* DEMO: the prototype ships sample drinks; the installed app starts empty */
 const DEMO=false;
+const BUILD='Nov 10, 10:25 PM';
 const KEY=DEMO?'sip-proto-v5':'sip-v1', TKEY='sip-theme';
 const THEMES=[
   {id:'matcha',name:'Longjing Green',c:'#8DA189'},
@@ -1523,7 +1524,7 @@ function viewSettings(){
   <div class="section"><span class="eyebrow">Theme color · ${(THEMES.find(t=>t.id===theme)||THEMES[0]).name}</span><div class="themes" role="radiogroup" aria-label="Theme color">${THEMES.map(t=>{const on=t.id===theme;return `<button class="theme ${on?'on':''}" style="--sw:${t.c}" data-act="theme" data-v="${t.id}" role="radio" aria-checked="${on}" aria-label="${t.name}">${on?`<span class="ck">${ICON.check}</span>`:''}</button>`;}).join('')}</div></div>
   <div class="section"><span class="eyebrow">Feel</span>
     <div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Sounds</span><span class="small">Sips, pops, clinks and slurps</span></span>${bobaSwitch('sound',prefs.sound==='on','Sounds')}</div>
-    <button class="linkbtn" style="align-self:flex-start" data-act="replay">Replay the opening</button></div>
+    <button class="linkbtn" style="align-self:flex-start" data-act="replay">Replay the opening</button>${DEMO?'':`<span class="small" style="opacity:.7">Version ${BUILD}</span>`}</div>
   ${DEMO?`<div class="section"><span class="eyebrow">Prototype only</span>
     <div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Order-again tags</span><span class="small">How the three tags look next to each other</span></span><span style="display:flex;gap:6px">${pill('Yes')}${pill('Maybe')}${pill('No')}</span></div>
     <div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Preview brand levels</span><span class="small">Pretends you've been coming for a while, so the Shelf shows Levels 1 to 5</span></span>${bobaSwitch('lvDemo',!!U.lvDemo,'Preview brand levels')}</div>
@@ -1862,7 +1863,12 @@ function pearls(){const now=Date.now();if(now-pearlAt<900)return;pearlAt=now;con
 const view=$('#view');let ty0=null;
 view.addEventListener('wheel',e=>{if(view.scrollTop<=0&&e.deltaY<-12)pearls();},{passive:true});
 view.addEventListener('touchstart',e=>{ty0=view.scrollTop<=0?e.touches[0].clientY:null;},{passive:true});
-view.addEventListener('touchmove',e=>{if(ty0!=null&&e.touches[0].clientY-ty0>60){pearls();ty0=null;}},{passive:true});
+view.addEventListener('touchmove',e=>{if(ty0!=null&&e.touches[0].clientY-ty0>60){pearls();ty0=null;pullRefresh();}},{passive:true});
+/* pull to refresh: the boba drop, then the app reloads (picking up any new version); no opening animation after */
+let refreshing=false;
+function pullRefresh(){if(refreshing||U.log)return;refreshing=true;
+  try{navigator.serviceWorker&&navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{});}catch(e){}
+  setTimeout(()=>{try{sessionStorage.setItem('sip-refreshed','1');}catch(e){}location.reload();},1150*SP());}
 
 /* shake the phone */
 let lastShake=0,lastAcc=null;
@@ -2087,7 +2093,8 @@ document.documentElement.classList.add('no-t');
 applyTheme();applyPearl();twApply();buildTabbar();buildOpener();twBuild();applyLang();setTimeout(twSyncColors,700);
 ready=Promise.resolve().then(()=>{for(const k in PH)rimURL(PH[k],'sm');render();});
 requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.remove('no-t')));
-showOpener();
+{let rf=false;try{rf=sessionStorage.getItem('sip-refreshed')==='1';sessionStorage.removeItem('sip-refreshed');}catch(e){}
+ if(rf){$('#opener').hidden=true;ready.then(()=>render({anim:'enter'}));}else showOpener();}
 })();
 </script>
 
