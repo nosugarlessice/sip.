@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#C38D9F"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="sip.">
+<meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="sip.">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><link rel="icon" href="icons/icon-192.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>sip.</title>
@@ -94,7 +94,6 @@ img{-webkit-user-drag:none;user-select:none}
   .about{display:none}
   :root{padding:0!important}
   html,body{background:var(--card)}
-  html.ios-band .tabbar{padding-bottom:8px}
   body{padding:0!important}
   /* edge to edge: the awning stripes run up under the status bar, the tab bar runs down to the bottom edge */
   html,body{overflow:hidden;overscroll-behavior:none}
@@ -783,7 +782,7 @@ html.zh .lvcard.big .lv-stamp{padding-top:10px;padding-bottom:0;line-height:48px
 const TODAY=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());
 /* DEMO: the prototype ships sample drinks; the installed app starts empty */
 const DEMO=false;
-const BUILD='Nov 10, 10:55 PM';
+const BUILD='Nov 10, 11:00 PM';
 const KEY=DEMO?'sip-proto-v5':'sip-v1', TKEY='sip-theme';
 const THEMES=[
   {id:'matcha',name:'Longjing Green',c:'#8DA189'},
@@ -1025,7 +1024,8 @@ const hash=s=>{let h=2166136261;for(const ch of String(s)){h^=ch.charCodeAt(0);h
 const rng=seed=>{let s=seed>>>0||1;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296;};};
 const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms);}catch(e){}};
 
-function applyTheme(){const t=THEMES.find(x=>x.id===theme)||THEMES[0];document.documentElement.style.setProperty('--accent',t.c);}
+function applyTheme(){const t=THEMES.find(x=>x.id===theme)||THEMES[0];document.documentElement.style.setProperty('--accent',t.c);
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',t.c);}
 
 /* ---------- sound (synthesized, plays only after a tap) ---------- */
 const Snd={ctx:null,master:null,
@@ -2119,13 +2119,6 @@ document.documentElement.classList.add('no-t');
 applyTheme();applyPearl();twApply();buildTabbar();buildOpener();twBuild();applyLang();setTimeout(twSyncColors,700);
 ready=Promise.resolve().then(()=>{for(const k in PH)rimURL(PH[k],'sm');render();});
 requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.remove('no-t')));
-/* iPhone Home Screen app: iOS keeps a strip below the page for itself (see fitStandalone) */
-function fitStandalone(){
-  /* iOS draws its own strip below the page and paints it with the page background (it can't hold buttons),
-     so the background is the tab bar's color and the tab bar drops its own bottom padding when the strip is there */
-  const port=matchMedia('(orientation: portrait)').matches,H=port?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);
-  document.documentElement.classList.toggle('ios-band',!!navigator.standalone&&H-innerHeight>20);}
-fitStandalone();addEventListener('resize',fitStandalone);addEventListener('orientationchange',()=>setTimeout(fitStandalone,250));
 
 {let rf=false;try{rf=sessionStorage.getItem('sip-refreshed')==='1';sessionStorage.removeItem('sip-refreshed');}catch(e){}
  if(rf){$('#opener').hidden=true;ready.then(()=>render({anim:'enter'}));}else showOpener();}
