@@ -75,7 +75,7 @@ img{-webkit-user-drag:none;user-select:none}
 .status{display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;background:var(--awning);color:var(--c-awning-text)}
 .status .notch{width:104px;height:28px;background:#24272A;border-radius:18px}
 .status .sig{display:flex;gap:5px;align-items:center}
-.main{position:relative;overflow:hidden}
+.status{grid-row:1}.main{grid-row:2;min-height:0;position:relative;overflow:hidden}.tabbar{grid-row:3}
 .view{position:absolute;inset:0;z-index:0;overflow-y:auto;overflow-x:hidden;padding:2px var(--pad-x) var(--page-pb);scrollbar-width:none}
 .view::-webkit-scrollbar{display:none}
 /* awning header: stripes behind the page title only, scalloped hem below */
@@ -749,7 +749,7 @@ html.zh .lvcard.big .lv-stamp{padding-top:10px;padding-bottom:0;line-height:48px
 
 <script>
 (function(){
-const TODAY='2026-10-22';
+const TODAY=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());
 const KEY='sip-proto-v5', TKEY='sip-theme';
 const THEMES=[
   {id:'matcha',name:'Longjing Green',c:'#8DA189'},

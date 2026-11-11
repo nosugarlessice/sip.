@@ -148,19 +148,41 @@ footer .logo{font-size:40px}
 footer p{font-size:13px; letter-spacing:.14em}
 footer small{display:block; width:100%; font-size:12px; opacity:.8; letter-spacing:0}
 
+/* phone: its own spacing, tuned separately from desktop (the phone preview drives these) */
+:root{--m-gut:20px; --m-awn:96px; --m-nav-logo:40px; --m-nav-pad:9px;
+  --m-h-top:56px; --m-h-g1:-4px; --m-logo:120px; --m-h-g2:12px; --m-lede:20px; --m-h-g3:26px; --m-h-g4:14px; --m-h-bot:36px;
+  --m-dv-w:36px; --m-dv-sp:36px;
+  --m-f-top:0px; --m-f-h2:40px; --m-f-gap:20px; --m-gif:230px; --m-f-col:22px; --m-f-h3:28px; --m-txt-pad:8px; --m-arw-in:0px; --m-f-bot:12px;
+  --m-i-top:0px; --m-i-gap:28px; --m-i-cgap:16px; --m-i-pad:22px; --m-step:14px; --m-i-bot:48px; --m-foot:40px}
 @media (max-width:760px){
-  .hero-in.split{grid-template-columns:minmax(0,1fr); grid-template-areas:"eb" "logo" "words"}
-  .hero-in.split .lede{margin-top:var(--h-g2)}
-  .hero{padding-top:min(var(--h-top), 72px)}
-  .hero h1.sipl{margin-top:max(var(--h-g1), -8px)}
-  .slide{grid-template-columns:minmax(0,1fr); justify-items:center; text-align:center; gap:20px; padding-bottom:24px}
-  .slide .phone{width:min(var(--f-gif), 220px)}
-  .car{grid-template-columns:minmax(0,1fr); gap:0}
-  .arw{position:absolute; top:190px; z-index:2; width:40px; height:40px}
-  .arw.prev{left:0} .arw.next{right:0}
-  .cards{grid-template-columns:minmax(0,1fr)}
-  .nav ul a{padding:8px 9px; font-size:12px; letter-spacing:.02em}
-  .logo{font-size:44px}
+  :root{--gut:max(var(--m-gut), env(safe-area-inset-left, 0px)); --gutR:max(var(--m-gut), env(safe-area-inset-right, 0px))}
+  .awning{height:var(--m-awn)}
+  .logo{font-size:var(--m-nav-logo)}
+  .nav ul a{padding:8px var(--m-nav-pad); font-size:12px; letter-spacing:.02em}
+  .hero{padding-block:var(--m-h-top) var(--m-h-bot)}
+  .hero-in.split,.hero-in{grid-template-columns:minmax(0,1fr); grid-template-areas:"eb" "logo" "words"; justify-items:start; text-align:left}
+  .hero h1.sipl{font-size:var(--m-logo); margin:var(--m-h-g1) 0 0}
+  .hero-in .lede,.hero-in.split .lede{margin:var(--m-h-g2) 0 0; font-size:var(--m-lede)}
+  .hero-in .btns,.hero-in.split .btns{margin-top:var(--m-h-g3); justify-content:flex-start}
+  .hero-in .meta{margin-top:var(--m-h-g4)}
+  html[data-mhero="center"] .hero-in{justify-items:center; text-align:center}
+  html[data-mhero="center"] .hero-in .lede{margin-inline:auto}
+  html[data-mhero="center"] .hero-in .btns{justify-content:center}
+  html[data-mbtn="full"] .hero .btns .btn{flex:1 1 100%; justify-content:center}
+  .divider{margin-block:var(--m-dv-sp)}
+  .features{padding-block:var(--m-f-top) var(--m-f-bot)}
+  .features h2,.install h2{font-size:var(--m-f-h2)}
+  .car{grid-template-columns:minmax(0,1fr); gap:0; margin-top:var(--m-f-gap)}
+  .slide{grid-template-columns:minmax(0,1fr); justify-items:center; text-align:center; gap:var(--m-f-col); padding:4px var(--m-txt-pad) 24px}
+  .slide .phone{width:var(--m-gif)}
+  .slide h3{font-size:var(--m-f-h3)}
+  .arw{position:absolute; top:calc(var(--m-gif) * 292 / 270 - 16px); z-index:2; width:40px; height:40px}
+  .arw.prev{left:var(--m-arw-in)} .arw.next{right:var(--m-arw-in)}
+  .install{padding-block:var(--m-i-top) var(--m-i-bot)}
+  .cards{grid-template-columns:minmax(0,1fr); gap:var(--m-i-cgap); margin-top:var(--m-i-gap)}
+  .card{padding:var(--m-i-pad); border-radius:24px}
+  ol.steps{gap:var(--m-step)}
+  footer{padding-block:var(--m-foot) calc(var(--m-foot) - 6px + env(safe-area-inset-bottom, 0px))}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -176,7 +198,7 @@ footer small{display:block; width:100%; font-size:12px; opacity:.8; letter-spaci
 <main id="top">
   <section class="hero">
     <div class="wrap">
-      <div class="hero-in" id="heroIn">
+      <div class="hero-in split" id="heroIn">
         <span class="eyebrow">A drink diary</span>
         <h1 class="sipl" id="sipl" role="button" tabindex="0" aria-label="sip. Tap to sip again"><span class="sl ghost" aria-hidden="true">sip.</span><span class="sl empty" id="slogo">sip.</span></h1>
         <div class="words">
@@ -325,9 +347,10 @@ const TW=[['#','Top (big logo)'],['--h-top','Space above',0,240,'px',180],['--h-
   ['#','Get sip.'],['--i-top','Space above',0,160,'px',8],['--i-gap','Title → cards',0,90,'px',44],['--i-cgap','Between cards',0,60,'px',30],['--i-pad','Inside cards',12,56,'px',28],['--i-bot','Space below',0,160,'px',64]];
 const heroIn=document.getElementById('heroIn'),root=document.documentElement;const ADJ=/[?&]adjust\b/.test(location.search);let TS={};if(ADJ)try{TS=JSON.parse(localStorage.getItem('sip-site-tw4')||'{}');}catch(e){}
 const saveTS=()=>{try{localStorage.setItem('sip-site-tw4',JSON.stringify(TS));}catch(e){}};
-const drawDiv=()=>{const cs=getComputedStyle(root),W=parseFloat(cs.getPropertyValue('--dv-w'))||64,t=parseFloat(cs.getPropertyValue('--dv-t'))||1.2,H=W/2+t;
+const MOB=matchMedia('(max-width:760px)');
+const drawDiv=()=>{const cs=getComputedStyle(root),W=parseFloat(cs.getPropertyValue(MOB.matches?'--m-dv-w':'--dv-w'))||64,t=parseFloat(cs.getPropertyValue('--dv-t'))||1.2,H=W/2+t;
   document.querySelectorAll('svg.divider').forEach((sv,i)=>{sv.setAttribute('height',H);sv.innerHTML=`<defs><pattern id="dvp${i}" width="${W}" height="${H}" patternUnits="userSpaceOnUse"><path d="M0 ${t/2} A${W/2} ${W/2} 0 0 0 ${W} ${t/2}" fill="none" stroke="currentColor" stroke-width="${t}" stroke-linecap="round"/></pattern></defs><rect width="100%" height="${H}" fill="url(#dvp${i})"/>`;});};
-const applyTS=()=>{for(const [v,,,,u,d] of TW){if(v==='#')continue;const x=TS[v]??d;root.style.setProperty(v,u==='s'?String(x):x+u);}drawDiv();heroIn.className='hero-in '+((TS.layout||'split')!=='center'?(TS.layout||'split'):'');};
+const applyTS=()=>{if(!ADJ){drawDiv();return;}for(const [v,,,,u,d] of TW){if(v==='#')continue;const x=TS[v]??d;root.style.setProperty(v,u==='s'?String(x):x+u);}drawDiv();heroIn.className='hero-in '+((TS.layout||'split')!=='center'?(TS.layout||'split'):'');};
 applyTS();
 const tp=document.createElement('div');tp.className='tw';
 tp.innerHTML=`<button class="tw-tog" type="button" aria-expanded="false">Adjust</button><div class="tw-p" hidden>
@@ -346,6 +369,12 @@ tp.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.a==='reset'){TS={};saveTS();applyTS();twSync();}
   if(b.dataset.a==='copy'){const t='layout: '+(TS.layout||'split')+'\n'+TW.map(([v,l,,,u,d])=>v==='#'?`\n[${l}]`:`${l}: ${TS[v]??d}${u}`).join('\n');
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy values',1400);},()=>{prompt('Copy these:',t);});}});
+MOB.addEventListener?.('change',drawDiv);
+/* phone preview: the preview page posts spacing values here */
+addEventListener('message',e=>{const d=e.data;if(!d||d.sip!=='m')return;
+  if(d.vars)for(const k in d.vars)root.style.setProperty(k,d.vars[k]);
+  if(d.hero)root.dataset.mhero=d.hero;if(d.btn)root.dataset.mbtn=d.btn;
+  drawDiv();if(d.pour){Snd.ac();replay();}});
 </script>
 
 </body></html>
