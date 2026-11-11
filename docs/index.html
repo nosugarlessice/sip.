@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="sip. is a quiet drink diary: snap your cup, sip to rate it, and watch your month fill up with little stickers.">
+<meta name="description" content="sip. is a quiet drink diary: snap your cup, sip to rate it, and watch your month fill up with stickers of your cups. Days in cups.">
 <meta name="theme-color" content="#C38D9F"><link rel="icon" href="app/icons/icon-192.png"><link rel="apple-touch-icon" href="app/icons/apple-touch-icon.png">
 <style>body{margin:0}</style>
 <title>sip. — days in cups</title>
@@ -56,6 +56,11 @@ h1,h2,h3{font-family:var(--display); font-weight:400; text-wrap:balance}
 .sipl .ghost{color:var(--milky)}
 #slogo.empty{clip-path:inset(100% 0 0 0)}
 .lede{font-family:var(--display); font-size:clamp(21px, 2.4vw, 26px); line-height:1.35; color:var(--ink); max-width:30ch}
+/* line breaks fall between phrases, never inside one; the tagline gets its own line */
+.lede .ph,.meta .ph{display:inline-block; max-width:100%}
+.btn{white-space:nowrap}
+@media (max-width:360px){.btn small{display:none}}
+.lede .tag{display:block; margin-top:.3em}
 .btns{display:flex; flex-wrap:wrap; gap:10px}
 .btn{display:inline-flex; align-items:center; gap:10px; text-decoration:none; font:500 15px/1 var(--body); padding:15px 22px; border-radius:999px; border:0; cursor:pointer;
   background:var(--milky); color:var(--accent-ink); transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
@@ -202,12 +207,12 @@ footer small{display:block; width:100%; font-size:12px; opacity:.8; letter-spaci
         <span class="eyebrow">A drink diary</span>
         <h1 class="sipl" id="sipl" role="button" tabindex="0" aria-label="sip. Tap to sip again"><span class="sl ghost" aria-hidden="true">sip.</span><span class="sl empty" id="slogo">sip.</span></h1>
         <div class="words">
-        <p class="lede">Snap the cup in your hand, sip to rate it, and watch your month fill up with little stickers. Nothing grand. Just noticing.</p>
+        <p class="lede"><span class="ph">Snap the cup in your hand,</span> <span class="ph">sip to rate it,</span> <span class="ph">and watch your month fill up</span> <span class="ph">with stickers of your cups.</span><span class="tag">Days in cups.</span></p>
         <div class="btns">
           <button class="btn solid" type="button" id="ios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.8-3.5.8s-1.8-.8-3-.8C7 7.2 5.5 8.2 4.7 9.6c-1.7 2.9-.4 7.2 1.2 9.6.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8s1.9.8 3.1.8c1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.9-1.1-2.9-4zM14.1 5.5c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1.1.1 2.1-.5 2.7-1.3z"/></svg>Get on iPhone</button>
           <a class="btn" id="android" href="https://github.com/nosugarlessice/sip./releases/latest/download/sip-android.apk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.6 9.5l1.7-3a.4.4 0 0 0-.7-.4l-1.8 3A10.6 10.6 0 0 0 12 8.2c-1.7 0-3.3.3-4.8 1L5.4 6.1a.4.4 0 0 0-.7.4l1.7 3A9.5 9.5 0 0 0 1.8 17h20.4a9.5 9.5 0 0 0-4.6-7.5zM7 14.4a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm10 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>Download for Android <small>.apk</small></a>
         </div>
-        <p class="meta">Free · No sign-up · No ads · Works in English and 中文</p>
+        <p class="meta"><span class="ph">Free ·</span> <span class="ph">No sign-up ·</span> <span class="ph">No ads ·</span> <span class="ph">Works in English and 中文</span></p>
         </div>
       </div>
     </div>
