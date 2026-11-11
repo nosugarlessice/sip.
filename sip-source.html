@@ -511,6 +511,11 @@ html.zh .receipt .rh{margin-bottom:12px}
 .me-sum b{color:var(--ink);font-weight:600}
 .sc-empty{display:flex;flex-direction:column;gap:10px;padding:4px 2px 6px}
 .sc-empty-b{display:flex;flex-wrap:wrap;gap:8px}
+.ph-card{border:1.5px dashed var(--line);border-radius:var(--radius);padding:18px 16px;color:var(--muted);font-size:12px;line-height:1.4;text-align:center}
+.ph-card.tall{min-height:120px;display:grid;place-items:center}
+.rk-ph{border-bottom:0}
+.bud .r{display:flex;align-items:baseline;gap:4px;white-space:nowrap;flex:none}
+.ph-slot{flex:1;min-width:0;height:46px;border:1.5px dashed var(--line);border-radius:12px;display:flex;align-items:center;padding:0 12px;font-size:11.5px;color:var(--muted)}
 .fav-card{background:var(--card);border-radius:var(--radius);padding:var(--me-fav-pad) calc(var(--me-fav-pad) + 2px);display:flex;flex-direction:column;gap:var(--me-fav-gap)}
 .fav-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .fav-name{font-family:var(--display);font-style:italic;font-size:30px;line-height:1.05;color:var(--accent-ink)}
@@ -770,7 +775,7 @@ html.zh .lvcard.big .lv-stamp{padding-top:10px;padding-bottom:0;line-height:48px
 const TODAY=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());
 /* DEMO: the prototype ships sample drinks; the installed app starts empty */
 const DEMO=true;
-const BUILD='Nov 10, 10:40 PM';
+const BUILD='Nov 10, 10:45 PM';
 const KEY=DEMO?'sip-proto-v5':'sip-v1', TKEY='sip-theme';
 const THEMES=[
   {id:'matcha',name:'Longjing Green',c:'#8DA189'},
@@ -915,7 +920,7 @@ const ZH_BASE={
 /* shelf */
 'All':'全部','Search drinks or brands':'搜索饮品或品牌','Search shelf':'搜索收藏柜','Level {n}':'等级 {n}','Top level':'已是最高等级',
 '{n} more to Level {l}':'再{n}杯升到等级 {l}','{n} drinks · avg {a} of 4':'{n}杯 · 平均{a}/4','{n} drink · avg {a} of 4':'{n}杯 · 平均{a}/4',
-'{n} card filled':'集满{n}张卡','{n} cards filled':'集满{n}张卡','{n}×':'{n}次','Nothing here yet.':'这里还是空的。','No drinks yet':'还没喝过','Nothing logged here yet.':'这里还没有记录。','Log a drink here':'在这家记一杯','Remove from shelf':'从货架移除','Removed from your shelf':'已从货架移除',
+'{n} card filled':'集满{n}张卡','{n} cards filled':'集满{n}张卡','{n}×':'{n}次','Nothing here yet.':'这里还是空的。','No drinks yet':'还没喝过','Nothing logged here yet.':'这里还没有记录。','Your favorite shop shows up here once you’ve logged a few drinks.':'多记几杯，你最爱的店就会出现在这里。','Give a drink all four pearls to place it here':'给一杯打满四颗珍珠，它就会出现在这里','Log a drink with a friend, and who you sip with most shows up here.':'和朋友一起喝时记一杯，最常一起喝的人会出现在这里。','times together':'次一起','time together':'次一起','Log a drink here':'在这家记一杯','Remove from shelf':'从货架移除','Removed from your shelf':'已从货架移除',
 /* pick for me */
 'Get this one':'就喝这个','Shaking…':'摇一摇…','Shake again':'再摇一次','Log it':'记下来','Pick a drink for me':'帮我选一杯',
 'Picking from the drinks you’d order again':'从你还会点的饮品里挑','Rate a few drinks you’d order again first':'先给几杯还会点的饮品打分吧',
@@ -1517,15 +1522,16 @@ function viewSettings(){
   let favHTML;
   if(fav){const b=brand(fav),n=brandCount(fav),lv=levelOf(n),es=S.entries.filter(e=>drink(e.drink).b===fav),avg=es.length?es.reduce((a,e)=>a+e.rating,0)/es.length:0;
     favHTML=`<div class="fav-card"><div class="fav-top"><span class="fav-name">${esc(b.name)}${b.cn?`<span class="cn">${esc(b.cn)}</span>`:''}</span><span class="blv" data-l="${lv.l}">Level ${lv.l}</span></div><span class="small">${es.length} drink${es.length===1?'':'s'} · avg ${avg.toFixed(1)} of 4</span></div>`;}
+  else if(!counts.length)favHTML=`<div class="ph-card">Your favorite shop shows up here once you’ve logged a few drinks.</div>`;
   else favHTML=`<div class="fav-card ask"><span class="fav-q">What’s your favorite brand so far?</span><div class="chips">${counts.map(x=>`<button class="chip ${S.fav===x.b.id?'on':''}" data-act="favset" data-v="${x.b.id}">${esc(x.b.name)}</button>`).join('')}</div></div>`;
   return `<div class="banner"><div class="topbar"><h1 class="h2">Me</h1></div></div>
   ${first?`<div class="me-sum">Sipping since ${MON[pd(first.date).getMonth()]} ${pd(first.date).getFullYear()} · <b>${ents.length}</b> drinks · <b>${Object.keys(bset).length}</b> shops</div>`:''}
-  ${!counts.length&&!fav?'':`<div class="section me-fav"><div class="section-h"><span class="eyebrow">Favorite brand so far</span>${fav?`<button class="link-btn" data-act="favedit">Change</button>`:''}</div>${favHTML}</div>`}
-  ${t3.length?`<div class="section me-top"><div class="section-h"><span class="eyebrow">Top three drinks</span>${c4>3?`<button class="link-btn" data-act="rank">${(S.ranks||{}).all?'Re-rank':'Rank them'}</button>`:''}</div>
-    <div class="podium">${t3.map((t,i)=>{const d=drink(t.drink);return `<button class="row rk" data-act="open" data-id="${t.e.id}"><span class="rk-n">${i+1}</span>${cupImg(t.e)}<span class="t"><span class="name">${esc(d.name)}</span><span class="meta">${esc(brand(d.b).name)} · had ${t.n}×</span></span></button>`;}).join('')}</div>
-    ${c4>3?`<div class="small rk-hint">${c4} drinks have earned all four pearls.${(S.ranks||{}).all?'':' Showing the first three you logged.'}</div>`:''}</div>`:''}
-  ${(()=>{const bd=buddies();if(!bd.length)return '';return `<div class="section me-bud"><div class="section-h"><span class="eyebrow">Sipped with</span><span class="small">by times out together</span></div>
-    <div class="podium buds">${bd.slice(0,5).map((p,i)=>{const le=sortE(S.entries.filter(x=>x.with&&x.with.name&&x.with.name.trim().toLowerCase()===p.name.toLowerCase())).pop();return `<button class="row rk bud" data-act="open" data-id="${le.id}"><span class="rk-n">${i+1}</span>${cupImg(le)}<span class="t"><span class="name">${esc(p.name)}</span><span class="meta">last time ${fmtDate(le.date)} · ${esc(drink(le.drink).name)}</span></span><span class="r"><b class="num">${p.n}</b><span class="small"> ${p.n>1?'times':'time'}</span></span></button>`;}).join('')}</div></div>`;})()}
+  ${`<div class="section me-fav"><div class="section-h"><span class="eyebrow">Favorite brand so far</span>${fav?`<button class="link-btn" data-act="favedit">Change</button>`:''}</div>${favHTML}</div>`}
+  ${`<div class="section me-top"><div class="section-h"><span class="eyebrow">Top three drinks</span>${c4>3?`<button class="link-btn" data-act="rank">${(S.ranks||{}).all?'Re-rank':'Rank them'}</button>`:''}</div>
+    <div class="podium">${t3.map((t,i)=>{const d=drink(t.drink);return `<button class="row rk" data-act="open" data-id="${t.e.id}"><span class="rk-n">${i+1}</span>${cupImg(t.e)}<span class="t"><span class="name">${esc(d.name)}</span><span class="meta">${esc(brand(d.b).name)} · had ${t.n}×</span></span></button>`;}).join('')}${[0,1,2].slice(t3.length).map(i=>`<div class="row rk rk-ph"><span class="rk-n">${i+1}</span><span class="ph-slot">${i===t3.length?'Give a drink all four pearls to place it here':''}</span></div>`).join('')}</div>
+    ${c4>3?`<div class="small rk-hint">${c4} drinks have earned all four pearls.${(S.ranks||{}).all?'':' Showing the first three you logged.'}</div>`:''}</div>`}
+  ${(()=>{const bd=buddies();if(!bd.length)return `<div class="section me-bud"><div class="section-h"><span class="eyebrow">Sipped with</span></div><div class="ph-card tall">Log a drink with a friend, and who you sip with most shows up here.</div></div>`;return `<div class="section me-bud"><div class="section-h"><span class="eyebrow">Sipped with</span></div>
+    <div class="podium buds">${bd.slice(0,5).map((p,i)=>{const le=sortE(S.entries.filter(x=>x.with&&x.with.name&&x.with.name.trim().toLowerCase()===p.name.toLowerCase())).pop();return `<button class="row bud" data-act="open" data-id="${le.id}">${cupImg(le)}<span class="t"><span class="name">${esc(p.name)}</span><span class="meta">last time ${fmtDate(le.date)} · ${esc(drink(le.drink).name)}</span></span><span class="r"><b class="num">${p.n}</b><span class="small"> ${p.n>1?'times together':'time together'}</span></span></button>`;}).join('')}</div></div>`;})()}
   <div class="me-set"><h2 class="me-set-h"><span>Settings</span></h2><div class="drawer open" id="setdrawer"><div class="drawer-in"><div class="me-set-in">
   <div class="section"><div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Language</span><span class="small">English · 中文</span></span><span class="langs"><button class="chip ${LANG==='en'?'on':''}" data-act="lang" data-v="en">English</button><button class="chip ${LANG==='zh'?'on':''}" data-act="lang" data-v="zh">中文</button></span></div></div>
   <div class="section"><span class="eyebrow">Theme color · ${(THEMES.find(t=>t.id===theme)||THEMES[0]).name}</span><div class="themes" role="radiogroup" aria-label="Theme color">${THEMES.map(t=>{const on=t.id===theme;return `<button class="theme ${on?'on':''}" style="--sw:${t.c}" data-act="theme" data-v="${t.id}" role="radio" aria-checked="${on}" aria-label="${t.name}">${on?`<span class="ck">${ICON.check}</span>`:''}</button>`;}).join('')}</div></div>
@@ -2105,6 +2111,13 @@ document.documentElement.classList.add('no-t');
 applyTheme();applyPearl();twApply();buildTabbar();buildOpener();twBuild();applyLang();setTimeout(twSyncColors,700);
 ready=Promise.resolve().then(()=>{for(const k in PH)rimURL(PH[k],'sm');render();});
 requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.remove('no-t')));
+/* iPhone Home Screen app: with the see-through status bar (stripes behind the clock), iOS reports the screen
+   shorter by the status bar's height, leaving a band under the tab bar. Size the app from the real screen there. */
+function fitStandalone(){const ph=$('#phone');if(!ph||!navigator.standalone)return;
+  const port=matchMedia('(orientation: portrait)').matches,H=port?Math.max(screen.width,screen.height):Math.min(screen.width,screen.height);
+  if(H>innerHeight+1){ph.style.bottom='auto';ph.style.height=H+'px';}else{ph.style.bottom='';ph.style.height='';}}
+fitStandalone();addEventListener('resize',fitStandalone);addEventListener('orientationchange',()=>setTimeout(fitStandalone,250));
+
 {let rf=false;try{rf=sessionStorage.getItem('sip-refreshed')==='1';sessionStorage.removeItem('sip-refreshed');}catch(e){}
  if(rf){$('#opener').hidden=true;ready.then(()=>render({anim:'enter'}));}else showOpener();}
 })();
