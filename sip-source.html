@@ -85,10 +85,16 @@ img{-webkit-user-drag:none;user-select:none}
 @media (max-width:520px){
   body{padding-block:0;gap:0;display:block}
   .about{display:none}
-  .phone{width:100%;height:100%;min-height:0;border:0;border-radius:0;box-shadow:none;grid-template-rows:0 1fr auto}
+  :root{padding:0!important}
+  html,body{background:var(--paper)}
+  body{padding:0!important}
+  /* edge to edge: the awning stripes run up under the status bar, the tab bar runs down to the bottom edge */
+  .phone{width:100%;height:100%;min-height:0;border:0;border-radius:0;box-shadow:none;grid-template-rows:0 1fr auto;
+    padding-top:env(safe-area-inset-top,0px);background:var(--awning) 0 0/100% calc(env(safe-area-inset-top,0px) + 4px) no-repeat,var(--paper)}
+  .tabbar{padding-bottom:max(var(--tab-pb), calc(env(safe-area-inset-bottom,0px) + 4px))}
   .status{display:none}
-  .view{padding-left:2px;padding-right:2px}
-  .banner{margin-left:-2px;margin-right:-2px}
+  .view{padding-left:max(var(--pad-x), env(safe-area-inset-left,0px));padding-right:max(var(--pad-x), env(safe-area-inset-right,0px))}
+  .banner{margin-left:calc(max(var(--pad-x), env(safe-area-inset-left,0px)) * -1);margin-right:calc(max(var(--pad-x), env(safe-area-inset-right,0px)) * -1)}
   .opener{top:0!important}
 }
 
@@ -750,7 +756,9 @@ html.zh .lvcard.big .lv-stamp{padding-top:10px;padding-bottom:0;line-height:48px
 <script>
 (function(){
 const TODAY=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());
-const KEY='sip-proto-v5', TKEY='sip-theme';
+/* DEMO: the prototype ships sample drinks; the installed app starts empty */
+const DEMO=true;
+const KEY=DEMO?'sip-proto-v5':'sip-v1', TKEY='sip-theme';
 const THEMES=[
   {id:'matcha',name:'Longjing Green',c:'#8DA189'},
   {id:'strawberry',name:'White Peach',c:'#C38D9F'},
@@ -834,7 +842,7 @@ const DRAIN=[0,30,48,66,86];
 const lsGet=k=>{try{return localStorage.getItem(k);}catch(e){return null;}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v);return true;}catch(e){return false;}};
 const clone=o=>JSON.parse(JSON.stringify(o));
-const fresh=()=>({entries:clone(SAMPLE),customs:[],brands:[],nid:100});
+const fresh=()=>({entries:DEMO?clone(SAMPLE):[],customs:[],brands:[],nid:100});
 let S;try{S=JSON.parse(lsGet(KEY)||'null');}catch(e){S=null;}
 if(!S||!S.entries) S=fresh();
 const save=()=>lsSet(KEY,JSON.stringify(S));
@@ -858,7 +866,7 @@ const tc=()=>(twcAll[theme]=twcAll[theme]||{});
 const SP=()=>tw.spd||1;
 const applyPearl=()=>document.documentElement.classList.toggle('shine',prefs.pearl==='shine');
 
-const U={tab:'cal',y:2026,m:9,detail:null,log:null,share:null,pick:null,shelfF:'all',shelfQ:'',open:{},delArmed:false,printed:{},seen:{},sheet:false};
+const U={tab:'cal',y:DEMO?2026:+TODAY.slice(0,4),m:DEMO?9:+TODAY.slice(5,7)-1,detail:null,log:null,share:null,pick:null,shelfF:'all',shelfQ:'',open:{},delArmed:false,printed:{},seen:{},sheet:false};
 const PHONE=document.getElementById('phone');
 const $=s=>document.querySelector(s);
 
@@ -1507,11 +1515,11 @@ function viewSettings(){
   <div class="section"><span class="eyebrow">Feel</span>
     <div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Sounds</span><span class="small">Sips, pops, clinks and slurps</span></span>${bobaSwitch('sound',prefs.sound==='on','Sounds')}</div>
     <button class="linkbtn" style="align-self:flex-start" data-act="replay">Replay the opening</button></div>
-  <div class="section"><span class="eyebrow">Prototype only</span>
+  ${DEMO?`<div class="section"><span class="eyebrow">Prototype only</span>
     <div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Order-again tags</span><span class="small">How the three tags look next to each other</span></span><span style="display:flex;gap:6px">${pill('Yes')}${pill('Maybe')}${pill('No')}</span></div>
     <div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Preview brand levels</span><span class="small">Pretends you've been coming for a while, so the Shelf shows Levels 1 to 5</span></span>${bobaSwitch('lvDemo',!!U.lvDemo,'Preview brand levels')}</div>
     <div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Play the stamp moment</span><span class="small">What happens when a card fills, and when it also levels you up</span></span><span style="display:flex;gap:6px"><button class="btn ghost" data-act="lvdemo" data-v="card">Card</button><button class="btn" data-act="lvdemo" data-v="up">Level up</button></span></div>
-    <div class="row" style="border:0"><span class="t"><span class="name">Reset sample data</span><span class="meta">Not part of the real app. Puts the sample drinks back.</span></span><button class="btn ghost" data-act="reset">Reset</button></div></div></div></div></div></div>`;
+    <div class="row" style="border:0"><span class="t"><span class="name">Reset sample data</span><span class="meta">Not part of the real app. Puts the sample drinks back.</span></span><button class="btn ghost" data-act="reset">Reset</button></div></div>`:''}</div></div></div></div>`;
 }
 
 /* ---------- detail ---------- */
