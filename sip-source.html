@@ -87,6 +87,8 @@ img{-webkit-user-drag:none;user-select:none}
   .about{display:none}
   :root{padding:0!important}
   html,body{background:var(--card)}
+  /* iOS zooms in on any text box under 16px: keep them at 16px on touch screens (pinch zoom still works) */
+  input,textarea,select{font-size:16px!important}
   body{padding:0!important}
   /* edge to edge: the awning stripes run up under the status bar, the tab bar runs down to the bottom edge */
   html,body{overflow:hidden;overscroll-behavior:none}
@@ -775,7 +777,7 @@ html.zh .lvcard.big .lv-stamp{padding-top:10px;padding-bottom:0;line-height:48px
 const TODAY=(d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'))(new Date());
 /* DEMO: the prototype ships sample drinks; the installed app starts empty */
 const DEMO=true;
-const BUILD='Nov 10, 11:00 PM';
+const BUILD='Nov 11, 11:00 AM';
 const KEY=DEMO?'sip-proto-v5':'sip-v1', TKEY='sip-theme';
 const THEMES=[
   {id:'matcha',name:'Longjing Green',c:'#8DA189'},
@@ -1538,7 +1540,7 @@ function viewSettings(){
   <div class="section"><span class="eyebrow">Theme color · ${(THEMES.find(t=>t.id===theme)||THEMES[0]).name}</span><div class="themes" role="radiogroup" aria-label="Theme color">${THEMES.map(t=>{const on=t.id===theme;return `<button class="theme ${on?'on':''}" style="--sw:${t.c}" data-act="theme" data-v="${t.id}" role="radio" aria-checked="${on}" aria-label="${t.name}">${on?`<span class="ck">${ICON.check}</span>`:''}</button>`;}).join('')}</div></div>
   <div class="section"><span class="eyebrow">Feel</span>
     <div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Sounds</span><span class="small">Sips, pops, clinks and slurps</span></span>${bobaSwitch('sound',prefs.sound==='on','Sounds')}</div>
-    <button class="linkbtn" style="align-self:flex-start" data-act="replay">Replay the opening</button>${DEMO?'':`<span class="small" style="opacity:.7">Version ${BUILD}</span>`}</div>
+    <button class="linkbtn" style="align-self:flex-start" data-act="replay">Replay the opening</button>${DEMO?'':`<span class="small" style="opacity:.7">Version ${BUILD}<br>Screen ${screen.width}×${screen.height} · app ${innerWidth}×${innerHeight}${navigator.standalone?' · Home Screen':''}${(document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')||{}).content==='default'?'':' · old bar'}</span>`}</div>
   ${DEMO?`<div class="section"><span class="eyebrow">Prototype only</span>
     <div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Order-again tags</span><span class="small">How the three tags look next to each other</span></span><span style="display:flex;gap:6px">${pill('Yes')}${pill('Maybe')}${pill('No')}</span></div>
     <div class="pref"><span class="t"><span style="font-weight:600;font-size:12.5px;display:block">Preview brand levels</span><span class="small">Pretends you've been coming for a while, so the Shelf shows Levels 1 to 5</span></span>${bobaSwitch('lvDemo',!!U.lvDemo,'Preview brand levels')}</div>
